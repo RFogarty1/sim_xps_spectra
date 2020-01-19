@@ -1,3 +1,8 @@
+ignore_folder/
+
+
+#------------------->All below here come from the Python .gitignore from github<------------
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
