@@ -10,10 +10,10 @@ class GenSpectraInputCompositeStandard( baseObjs.GenSpectraInput ):
 	
 	label = misc.StandardComponentDescriptor("label")
 
-	@misc.getAssertAllLabelsUniqueUponCreationClassInitializerWrapper()
 	@misc.getObjectsWithComponentsInstanceWrapper(isComposite=True)
-	def __init__(self, objs):
+	def __init__(self, objs, forceUniqueLabels=True):
 		self.objs = list(objs)
+		misc.checkAllLabelsUniqueOnInstance(self)
 
 	def calculateSpectralContribs(self,xVals):
 		outVals = list()
