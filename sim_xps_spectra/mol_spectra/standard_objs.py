@@ -34,7 +34,10 @@ class MolFragLabel(baseLabels.BaseLabel):
 	def components(self):
 		return [getattr(self,x) for x in self.reqArgs]
 
-
+	@property
+	def xSectionLabel(self):
+		""" Str reperesenting the required cross-section (e.g. S3s) for this fragment """
+		return self.eleKey + self.aoKey
 
 
 
