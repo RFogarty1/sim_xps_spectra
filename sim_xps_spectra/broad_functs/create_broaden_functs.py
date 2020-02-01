@@ -90,8 +90,59 @@ class GauBroadenFunct(base_objs.BroadenFunctionStandard):
 
 	@positions.setter
 	def positions(self,val):
-		assert len(val)==1, "Positions needs an inter with ONE value, not {}".format(len(val))
+		assert len(val)==1, "Positions needs an iter with ONE value, not {}".format(len(val))
 		self.centre = val[0]
+
+	@property
+	def leafObjs(self):
+		""" Property used on composite classes to find all leaf-objects. Just returns [self] for a leaf (this class) """
+		return [self]
+
+
+class BoxBroadenFunct(base_objs.BroadenFunctionStandard):
+
+
+	def __init__(self, pos, width, height):
+		""" Initializer for box function f(x) = area if pos-width<=x<=pos+width, else 0.0
+		
+		Args:
+			pos: (float) x-value at which the function is centred
+			width: (float) Width of the box function
+			height: (float) Intensity of the box function when its non-zero
+		"""
+
+		self._pos = pos
+		self._width = width
+		self._height = height
+
+	def __call__(self, xVals):
+		outVals = list()
+		minX, maxX = self._pos-self._width, self._pos+self._width
+		for x in xVals:
+			if ( x >= minX ) and (x <= maxX):
+				outVals.append(self._height)
+			else:
+				outVals.append(0.0)
+		return outVals
+
+	@property
+	def areas(self):
+		""" For box broadening function this actually returns height rather than area """
+		return [self._height]
+
+	@areas.setter
+	def areas(self, vals):
+		assert len(vals) == 1, "areas needs an iter with ONE value, not {}".format(len(vals)) 
+		self._height = vals[0]
+
+	@property
+	def positions(self):
+		return [self._pos]
+
+	@positions.setter
+	def positions(self, vals):
+		assert len(vals) == 1, "positions needs an iter with ONE value, not {}".format(len(vals)) 
+		self._pos = vals[0]
 
 	@property
 	def leafObjs(self):

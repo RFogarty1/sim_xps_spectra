@@ -54,6 +54,34 @@ class TestSingleGauBroadenFunct(unittest.TestCase):
 			self.assertAlmostEqual(exp,act)
 
 
+class TestSingleBoxFunct(unittest.TestCase):
+
+	def setUp(self):
+		self.boxAPos, self.boxAWidth, self.boxAHeight = 4.0, 1.0, 2.0
+		self.createTestObjs()
+
+	def createTestObjs(self):
+		self.testObjA = tCode.BoxBroadenFunct(self.boxAPos, self.boxAWidth, self.boxAHeight)
+
+	def testExpVsAct(self):
+		xVals =    [2.0,3.0,4.0,5.0,6.0]
+		expYVals = [0.0,2.0,2.0,2.0,0.0]
+		actYVals = self.testObjA(xVals)
+		[self.assertAlmostEqual(exp,act) for exp,act in it.zip_longest(expYVals, actYVals)]
+
+	def testAreaSetting(self):
+		expArea = [self.boxAHeight+2]
+		self.testObjA.areas = expArea
+		actArea = self.testObjA.areas
+		[self.assertAlmostEqual(exp,act) for exp,act in it.zip_longest(expArea,actArea)]
+
+
+	def testPositionSetting(self):
+		expPosition = [self.boxAPos + 2]
+		self.testObjA.positions = expPosition
+		actPosition = self.testObjA.positions
+		[self.assertAlmostEqual(exp,act) for exp,act in it.zip_longest(expPosition,actPosition)]
+
 
 class DudCallableWithInputFunct():
 	def __init__(self, inpFunct, **kwargs):
