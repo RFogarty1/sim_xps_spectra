@@ -50,10 +50,34 @@ class SpectrumFragmentStandard():
 	"""
 
 	def __init__(self,energies, intensities, label):
+		self._eqTol = 1e-5
 		self.energies = energies
 		self.intensities = intensities
 		assert len(energies)==len(intensities), "Need an intensity for each energy; have {} energies and {} intensities".format(len(energies),len(intensities))
 		self.label = label
+
+	def __eq__(self, other):
+		eqTol = max(self._eqTol, other._eqTol)
+
+		#Compare energies
+		if len(self.energies) != len(other.energies):
+			return False
+		eDiffs = [abs(x-y) for x,y in zip(self.energies,other.energies)]
+		if not all([x < eqTol for x in eDiffs]):
+			return False
+
+		#compare intensities
+		if len(self.intensities) != len(other.intensities):
+			return False
+		iDiffs = [abs(x-y) for x,y in zip(self.intensities,other.intensities)]
+		if not all([x < eqTol for x in iDiffs]):
+			return False
+
+		#compare labels
+		if self.label != other.label:
+			return False
+
+		return True
 
 
 def createSpectrumFromStandardCreator( specCreator ):

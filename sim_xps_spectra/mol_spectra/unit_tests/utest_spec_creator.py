@@ -1,4 +1,5 @@
 
+import copy
 import itertools as it
 import math
 import unittest
@@ -75,3 +76,47 @@ class TestSpecCreator(unittest.TestCase):
 		self.createTestObjs()
 		with self.assertRaises(AssertionError):
 			tCode.createSpectrumFromStandardCreator( self.testObjA )
+
+
+class TestSpecFrag(unittest.TestCase):
+
+	def setUp(self):
+		self.fragLabelA = molObjs.MolFragLabel(fragKey="fragA", eleKey="C", aoKey="2s")
+		self.energiesA = [2,3,4]
+		self.intensitiesA = [0,1,2]
+		self.createTestObjs()
+
+	def createTestObjs(self):
+		self.objA = tCode.SpectrumFragmentStandard(self.energiesA, self.intensitiesA, self.fragLabelA)
+
+	def testEqMethod_twoEqual(self):
+		self.assertTrue(self.objA == self.objA)
+
+	def testEqMethod_twoUnequalEnergies(self):
+		objA = copy.deepcopy(self.objA)
+		self.energiesA[0] = self.energiesA[0] + 1
+		self.createTestObjs()
+		self.assertTrue(objA != self.objA)
+
+	def testEqMethod_twoUnequalIntensities(self):
+		objA = copy.deepcopy(self.objA)
+		self.intensitiesA[0] = self.intensitiesA[0] + 0.5	
+		self.createTestObjs()
+		self.assertTrue( objA != self.objA )
+
+	def testEqMethod_twoDiffLenIntensitiesAndEnergies(self):
+		objA = copy.deepcopy(self.objA)
+		self.intensitiesA.append(5)
+		self.energiesA.append(3)
+		self.createTestObjs()
+		self.assertTrue( objA != self.objA )
+
+	def testEqMethod_twoUnequalLabels(self):
+		objA = copy.deepcopy(self.objA)
+		self.fragLabelA = molObjs.MolFragLabel(fragKey="fragA", eleKey="S", aoKey="2s")
+		self.createTestObjs()
+		self.assertTrue( objA != self.objA )
+
+
+
+
