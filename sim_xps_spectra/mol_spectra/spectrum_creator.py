@@ -143,7 +143,7 @@ def _getAllXSectionsForSpecCreator( specCreator ):
 	xSectCalculator = xSectObjs.CrossSectionCalculatorStandard( specCreator.xSectionDatabase )
 
 	if specCreator.photonEnergy is None:
-		allXSections = [-1.0 for x in specCreator.spectraFrags]
+		allXSections = [1.0 for x in specCreator.spectraFrags]
 	else:
 		allXSections = list()
 		for x in specCreator.spectraFrags:

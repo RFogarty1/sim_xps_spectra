@@ -23,11 +23,11 @@ def getSpecFragsFromMLInptFile(inpPath, fragName=None):
 		fragName = os.path.split(inpPath)[-1].replace("_MLinpt.txt","")
 
 
-	fileAsList = [x for x in _readFileIntoList(inpPath) if x.strip()!=""]
+	fileAsList = [x for x in _readFileIntoList(inpPath) if x.replace(","," ").strip()!=""]
 	energies, intensities, labelStrs,  = list(), list(), list()
 
 	#Get all raw values
-	mFactor = float( fileAsList[0].strip().split("=")[-1] )
+	mFactor = float( fileAsList[0].replace(","," ").strip().split("=")[-1] )
 	labels = [x for x in fileAsList[1].strip().split(",") if ("energy (ev)" not in x.lower()) and ("tdos" not in x.lower()) ]
 	energies, intensities = list(), list()
 
