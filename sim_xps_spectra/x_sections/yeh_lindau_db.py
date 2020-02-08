@@ -47,7 +47,11 @@ def createSubstituteLabelDict():
 	outDict = {"CL3D":"CL3P",
 	           "C2D":"C2P",
 	           "N2D":"N2P",
-	           "S3D":"S3P"}
+	           "S3D":"S3P",
+	           "F2D":"F2P",
+	           "O2D":"O2P",
+	           "P3D":"P3P",
+	           "B2D":"B2P"}
 	return outDict	
 
 
