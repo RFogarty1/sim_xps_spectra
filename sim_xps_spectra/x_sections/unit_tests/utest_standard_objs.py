@@ -10,7 +10,7 @@ class TestStandardCrossSectionCalculator(unittest.TestCase):
 	def setUp(self):
 		self.testXSectionsA = [(10,20), (20,25), (30,35)]
 		self.testAsymA = [(10,2), (20,4), (30,6)]
-		self.xSectionPreFactor = 1 / (math.pi*4)
+		self.xSectionPreFactor = 1 
 		self.createTestObjs()
 
 	def createTestObjs(self):

@@ -36,7 +36,7 @@ class CrossSectionCalculatorStandard(baseObjs.CrossSectionCalculatorBase):
 			assert abs(aoHv-asymHv)<0.01, "Photon energy must be the same for asymetry factor and ao cross section, aoHv={}, asymHv = {}".format(aoHv, asymHv)
 
 
-		return (1/(4*math.pi))*(angularIndependent + angularDependent)
+		return angularIndependent + angularDependent
 
 	def getHvUsedToCalculateCrossSection(self,label, hv, angle=None, ao=True):
 		if (angle is None) and (ao is False):

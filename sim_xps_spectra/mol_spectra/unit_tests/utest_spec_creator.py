@@ -58,7 +58,7 @@ class TestSpecCreator(unittest.TestCase):
 
 	def testExpVsActAttNoAngular_setA(self):
 		self.createTestObjs()
-		expVals = [x/(4*math.pi) for x in [24,39,33]] 
+		expVals = [24,39,33]
 		outSpec = tCode.createSpectrumFromStandardCreator( self.testObjA )
 		actVals = [x[1] for x in outSpec.totalSpectralContributions]
 		[self.assertAlmostEqual(exp,act) for (exp,act) in it.zip_longest(expVals,actVals)]
@@ -66,7 +66,7 @@ class TestSpecCreator(unittest.TestCase):
 	def testExpVsActWithAngular_setA(self):
 		self.emissionAngle = 60
 		self.createTestObjs()
-		expVals = [x/(4*math.pi) for x in [25.5,42.375,37.125]]
+		expVals = [25.5,42.375,37.125]
 		outSpec = tCode.createSpectrumFromStandardCreator( self.testObjA )
 		actVals = [x[1] for x in outSpec.totalSpectralContributions]
 		[self.assertAlmostEqual(exp,act) for (exp,act) in it.zip_longest(expVals,actVals)]
