@@ -47,7 +47,7 @@ In this section I'm going to assume you dont even have python or git installed i
   - Go to File->Clone a repository
   - The url this time is "https://github.com/RFogarty1/sim_xps_spectra"
   - Navigate to the repository (sim_xps_spectra) we just downloaded
-  - Edit the sim_xps_spectra\shared\config_vars.py file and set "BASE_DATA_DIR_PATH" to the path to your github dir. For example mine happened to be BASE_DATA_DIR_PATH = r"C:\Users\polic\Documents\GitHub\sim_xps_spectra". Note we need the r in front of the quotation marks when using windows file paths to tell python not to treat the backslashes as a special escape character
+  - Edit the sim_xps_spectra\shared\config_vars.py file and set "BASE_DATA_DIR_PATH" to the path to your cloned directory. For example mine happened to be BASE_DATA_DIR_PATH = r"C:\Users\polic\Documents\GitHub\sim_xps_spectra". Note we need the r in front of the quotation marks when using windows file paths to tell python not to treat the backslashes as a special escape character
   - This file editing is needed to tell the code where to find cross-sections, it will need repeating each time you update the code
   - Open the repository directory in powershell
   - python setup.py install --user
@@ -64,5 +64,28 @@ OK
 
 # Using the code (Windows, mostly transferable)
 
+1) Run the example code
+  - Go to Examples\cmd_line\bmim_scn folder
+  - Open the run_commands file with a text editor (notepad will do)
+  - Each line represents the command to create 1 spectrum, but in linux. To swap to windows commands we need to replace forward slashes with back slashes
+  - Open powershell in this directory
+  - type each of the run commands with slashes changed, e.g.
+  "python ..\..\..\scripts\run_gelius_for_mlinpt_folder.py . -fwhm 0.8"
+  
+ 2) More generally
+   - The overall synatx is "python <PATH_TO_SCRIPT> <PATH_TO_FOLDERS_TO_RUN_ON> <SIMULATION_OPTIONS>"
+   - The example code uses relative paths, meaning the commands will only work if you type them from within the correct directory
+  - To run the code from anywhere you need to use absolute paths
+  - PATH_TO_SCRIPT is the localtion of the file run_gelius_for_mlinpt_folder.py, mine happens to be
+"C:\Users\polic\Documents\GitHub\sim_xps_spectra\scripts\run_gelius_for_mlinpt_folder.py"
+  - PATH_TO_FOLDERS_TO_RUN_ON represents paths to folders containing the *MLinpt.txt files used to generated spectra. In my case the absoulte path to the folder used in the example would be
+"C:\Users\polic\Documents\GitHub\sim_xps_spectra\Examples\cmd_line\bmim_scn"
+  -  <SIMULATION_OPTIONS> determine how the spectrum will be simulated. At minimum you need -fwhm set
+  - If you only set fwhm, then a density of states will be simulated (no cross-sections used)
+  - If you only set fwhm and hv (photon energy) then the effect of the emission angle will be ignored (this would be simulate a spectrum calculated at the magic angle, which is about 55 degrees)
+  - If you set fwhm, hv and angle then you will get a simulated spectrum which accounts for angular-dependence of the cross-sections
+  
+  
+  
 
 
