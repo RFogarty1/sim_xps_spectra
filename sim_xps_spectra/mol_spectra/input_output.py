@@ -8,8 +8,8 @@ def getTotalContribStrFromSpectraOutput( spectraOutput, energyFmt=None, intensit
 	
 	Args:
 		spectraOutput: (GenSpectraOutput object) This contains all information for a generated spectrum
-		energyFmt: (Str, optional) The format string for the energies. Default = "{:.9f}"
-		intensityFmt: (Str, optional) The format string for the intensities. Default = "{:.9f}"
+		energyFmt: (Str, optional) The format string for the energies. Default = "{:.9g}"
+		intensityFmt: (Str, optional) The format string for the intensities. Default = "{:.9g}"
 			 
 	Returns
 		 outStr: (Str) String containing data on the total generated spectrum
@@ -18,8 +18,8 @@ def getTotalContribStrFromSpectraOutput( spectraOutput, energyFmt=None, intensit
 		 Errors
 	"""
 
-	energyFmt = "{:.9f}" if energyFmt is None else energyFmt
-	intensityFmt = "{:.9f}" if intensityFmt is None else intensityFmt
+	energyFmt = "{:.9g}" if energyFmt is None else energyFmt
+	intensityFmt = "{:.9g}" if intensityFmt is None else intensityFmt
 	formStr = "{}, {}".format( energyFmt, intensityFmt )
 
 	outData = spectraOutput.totalSpectralContributions
@@ -36,15 +36,15 @@ def getAllContribsOutputStrFromSpectraOutput( spectraOutput, energyFmt=None, int
 	
 	Args:
 		spectraOutput: (GenSpectraOutput object) This contains all information for a generated spectrum
-		energyFmt: (Str, optional) The format string for the energies. Default = "{:.9f}"
-		intensityFmt: (Str, optional) The format string for the intensities. Default = "{:.9f}"
+		energyFmt: (Str, optional) The format string for the energies. Default = "{:.9g}"
+		intensityFmt: (Str, optional) The format string for the intensities. Default = "{:.9g}"
 			 
 	Returns
 		 outStr: (Str) String containing data on the contributions to the spectrum
  
 	"""
-	energyFmt = "{:.9f}" if energyFmt is None else energyFmt
-	intensityFmt = "{:.9f}" if intensityFmt is None else intensityFmt
+	energyFmt = "{:.9g}" if energyFmt is None else energyFmt
+	intensityFmt = "{:.9g}" if intensityFmt is None else intensityFmt
 
 	labelList = spectraOutput.label
 	dataList = spectraOutput.spectralContributions

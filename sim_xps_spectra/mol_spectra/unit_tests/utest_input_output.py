@@ -21,7 +21,7 @@ class TestWriteOutputs(unittest.TestCase):
 
 	def testTotalSpectralContribs(self):
 		expTotalData = [ (1,5), (2,9), (3,11) ]
-		fmtStr = "{:.9f}, {:.9f}"
+		fmtStr = "{:.9g}, {:.9g}"
 		expOutStr = "\n".join( [ "#Energy, Intensities",
 		                         fmtStr.format(*expTotalData[0]),
 		                         fmtStr.format(*expTotalData[1]),
@@ -31,7 +31,7 @@ class TestWriteOutputs(unittest.TestCase):
 
 	def testIndividualSpectralContribs(self):
 		expTotalData = [ (1,2,3), (2,4,5), (3,6,5) ]
-		fmtStr = "{:.9f}, {:.9f}, {:.9f}"
+		fmtStr = "{:.9g}, {:.9g}, {:.9g}"
 		expOutStr = "\n".join( ["#labels = fragA-Si-2s, fragB-C-2p",
 		                        "#Energy, Intensities",
 		                        fmtStr.format( *expTotalData[0] ),
