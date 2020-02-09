@@ -7,7 +7,7 @@ import sim_xps_spectra.broad_functs.create_broaden_functs as bFunctCreator
 import sim_xps_spectra.mol_spectra.spectrum_creator as specCreatorModule
 import sim_xps_spectra.x_sections.yeh_lindau_db as yhDb
 
-def getSpectrumFromMlinptFolder(inpFolder, fwhm, hv, angle, multEnergiesByMinusOne=True):
+def getSpectrumFromMlinptFolder(inpFolder, fwhm, hv, angle, polarised=None, multEnergiesByMinusOne=True):
 	""" Description of function
 	
 	Args:
@@ -15,6 +15,7 @@ def getSpectrumFromMlinptFolder(inpFolder, fwhm, hv, angle, multEnergiesByMinusO
 		fwhm: (float) Full-Width at half maximum for the broadening function
 		hv: (float) Photon energy to calculate spectrum at (None means density-of-states)
 		angle: (float) Emission angle to calculate spectrum at (None means ignore angular effects)
+		polarised: (str, Optional) If None (default) then unpolarised light is assumed, If "linear" then simulate for linearly polarised light in direction of beam
 		multEnergiesByMinusOne: (Bool) Whether to multiply parsed energies by -1, to convert from eigenvalues(more -ve means more stable) to binding energies (more positive is more stable). Default is True
  
 	Returns
@@ -25,10 +26,10 @@ def getSpectrumFromMlinptFolder(inpFolder, fwhm, hv, angle, multEnergiesByMinusO
 	mlInptPaths = [x for x in os.listdir(inpFolder) if x.endswith('MLinpt.txt')]
 	assert len(mlInptPaths) > 0, "Need at least 1 input file, but none found in folder {}".format(inpFolder)
 
-	return getSpectrumFromMlinptFileList( mlInptPaths, fwhm, hv, angle )
+	return getSpectrumFromMlinptFileList( mlInptPaths, fwhm, hv, angle, polarised, multEnergiesByMinusOne=multEnergiesByMinusOne )
 
 
-def getSpectrumFromMlinptFileList( mlInptPaths, fwhm, hv, angle, multEnergiesByMinusOne=True ):
+def getSpectrumFromMlinptFileList( mlInptPaths, fwhm, hv, angle, polarised, multEnergiesByMinusOne=True ):
 	#Get all the data
 	allFrags = list()
 	for x in mlInptPaths:
@@ -65,7 +66,7 @@ def getSpectrumFromMlinptFileList( mlInptPaths, fwhm, hv, angle, multEnergiesByM
 
 	#Create our input object
 	specCreator = specCreatorModule.SpectrumCreatorStandard( spectraFrags=allFrags, normBFunct=bFunct, xSectionDatabase=xSectDatabase,
-	                                                         photonEnergy=hv, emissionAngle=angle, xVals=xVals )
+	                                                         photonEnergy=hv, emissionAngle=angle, xVals=xVals, polarised=polarised )
 
 	#Create the output spectrum and return it
 	outputSpectrum = specCreatorModule.createSpectrumFromStandardCreator( specCreator )

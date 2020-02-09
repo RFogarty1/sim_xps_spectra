@@ -16,10 +16,11 @@ class SpectrumCreatorStandard():
 		photonEnergy: (float) The photon energy to use; affects which cross-sections are applied. None means no cross-sections applied at all
 		emissionAngle: (float) Emission angle of photoelectrons; leave as None if you dont want angular effects included when calculating cross-sections
 		xVals: (float iter) List of x-values to evaluate the broadening functions at (i.e. binding energies included in plot)
+		polarised: (string) Polarisation of the light, if None (or not specified) then unpolarised light is assumed. "linear" means linearly polarised in the direction of the beam
 
 	"""
 	def __init__(self, spectraFrags=None, normBFunct=None,
-	             xSectionDatabase=None, photonEnergy=None, emissionAngle=None, xVals=None):
+	             xSectionDatabase=None, photonEnergy=None, emissionAngle=None, xVals=None, polarised=None):
 
 		self.spectraFrags = spectraFrags
 		self.normBFunct = normBFunct
@@ -27,6 +28,7 @@ class SpectrumCreatorStandard():
 		self.photonEnergy = photonEnergy
 		self.emissionAngle = emissionAngle
 		self.xVals = xVals
+		self.polarised = polarised
 
 		#Check all the required arguments are set
 		reqArgs = ["spectraFrags", "normBFunct","xVals"]
@@ -147,7 +149,7 @@ def _getAllXSectionsForSpecCreator( specCreator ):
 	else:
 		allXSections = list()
 		for x in specCreator.spectraFrags:
-			currXSection = xSectCalculator.calculateTotalCrossSection(x.label.xSectionLabel, specCreator.photonEnergy, angle=specCreator.emissionAngle, ao=True )
+			currXSection = xSectCalculator.calculateTotalCrossSection(x.label.xSectionLabel, specCreator.photonEnergy, angle=specCreator.emissionAngle, ao=True, pol=specCreator.polarised )
 			allXSections.append(currXSection)
 
 	return allXSections

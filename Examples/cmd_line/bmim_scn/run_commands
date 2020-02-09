@@ -1,3 +1,5 @@
 python ../../../scripts/run_gelius_for_mlinpt_folder.py . -fwhm 0.8
 python ../../../scripts/run_gelius_for_mlinpt_folder.py . -fwhm 0.8 -hv 1486
 python ../../../scripts/run_gelius_for_mlinpt_folder.py . -fwhm 0.8 -hv 1486 -angle 20
+python ../../../scripts/run_gelius_for_mlinpt_folder.py . -fwhm 0.8 -hv 1486 -angle 20 -polarised linear
+

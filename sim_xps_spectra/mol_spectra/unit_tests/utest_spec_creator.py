@@ -37,6 +37,7 @@ class TestSpecCreator(unittest.TestCase):
 		#other
 		self.photonEnergy = 6
 		self.emissionAngle = None
+		self.polarised = None
 
 		self.createTestObjs()
 
@@ -54,7 +55,7 @@ class TestSpecCreator(unittest.TestCase):
 		self.normBFunct = broadenFuncts.BoxBroadenFunct(bFunctPos, self.bFunctWidth, bFunctHeight) 
 		self.testObjA = tCode.SpectrumCreatorStandard(spectraFrags=[self.specFragsA, self.specFragsB], normBFunct=self.normBFunct,
 		                                              xSectionDatabase=self.mockDbA, photonEnergy=self.photonEnergy,
-		                                              emissionAngle=self.emissionAngle, xVals=self.testXVals) 
+		                                              emissionAngle=self.emissionAngle, xVals=self.testXVals, polarised=self.polarised) 
 
 	def testExpVsActAttNoAngular_setA(self):
 		self.createTestObjs()
@@ -67,6 +68,15 @@ class TestSpecCreator(unittest.TestCase):
 		self.emissionAngle = 60
 		self.createTestObjs()
 		expVals = [25.5,42.375,37.125]
+		outSpec = tCode.createSpectrumFromStandardCreator( self.testObjA )
+		actVals = [x[1] for x in outSpec.totalSpectralContributions]
+		[self.assertAlmostEqual(exp,act) for (exp,act) in it.zip_longest(expVals,actVals)]
+
+	def testExpVsActWithLinearPolarised_setA(self):
+		self.emissionAngle = 60
+		self.polarised = "linear"
+		self.createTestObjs()
+		expVals = [21, 32.25, 24.75]
 		outSpec = tCode.createSpectrumFromStandardCreator( self.testObjA )
 		actVals = [x[1] for x in outSpec.totalSpectralContributions]
 		[self.assertAlmostEqual(exp,act) for (exp,act) in it.zip_longest(expVals,actVals)]

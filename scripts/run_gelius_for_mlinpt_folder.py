@@ -19,7 +19,7 @@ def main():
 	#Create the spectra
 	allCalcSpectra, allCreators = list(), list()
 	for inpPath in argsNamespace.folderPaths:
-		currSpectrum, currCreator = getCalcSpectraForOneFolder( os.path.abspath(inpPath), argsNamespace.fwhm, argsNamespace.hv, argsNamespace.angle )
+		currSpectrum, currCreator = getCalcSpectraForOneFolder( os.path.abspath(inpPath), argsNamespace.fwhm, argsNamespace.hv, argsNamespace.angle, argsNamespace.polarised )
 		allCalcSpectra.append( currSpectrum )
 		allCreators.append( currCreator )
 
@@ -35,16 +35,18 @@ def parseCmdLineArgs():
 	parser.add_argument( "-fwhm", help='The full-width at half maximum of the broadening function to use', required=True )
 	parser.add_argument( "-hv", help='The photon energy you want the spectrum simulated at. If not provided then a density-of-states will be simulated' )
 	parser.add_argument( "-angle", help='Emission angle (in degrees) you want the spectrum simulated at, if not provided then angular effects will be ignored')
+	parser.add_argument( "-polarised", help='Polarisation of light. Not entering means unpolarised, "linear" means polarised in direction of the beam')
 	parsedArgs = parser.parse_args()
 
 	parsedArgs.fwhm = float(parsedArgs.fwhm)
 	parsedArgs.hv = None if parsedArgs.hv is None else float(parsedArgs.hv)
 	parsedArgs.angle = None if parsedArgs.angle is None else float(parsedArgs.angle)
+	parsedArgs.polarised = None if parsedArgs.polarised is None else str(parsedArgs.polarised)
 
 	return parsedArgs
 
-def getCalcSpectraForOneFolder(inpFolder, fwhm, hv, angle):
-	return mlInptInter.getSpectrumFromMlinptFolder(inpFolder, fwhm, hv, angle)
+def getCalcSpectraForOneFolder(inpFolder, fwhm, hv, angle, polarised):
+	return mlInptInter.getSpectrumFromMlinptFolder(inpFolder, fwhm, hv, angle, polarised)
 
 def saveAllPlotsOneFolder(inpFolder, creatorObj, fwhm, calcSpectrum):
 	folderPath = os.path.join( inpFolder, getSaveFolderNameFromCreator(creatorObj, fwhm) )
@@ -98,11 +100,12 @@ def _getMergedFragCalcSpectraObj( calcSpecOutput ):
 	return genSpecObjs.GenSpectraOutputCompositeStandard( allCalcSpecObjs )
 
 def getSaveFolderNameFromCreator(specCreator, fwhm):
-	fmt = "hv_{}_angle_{}_fwhm_{}"
+	fmt = "hv_{}_angle_{}_pol_{}_fwhm_{}"
 	hvVal = "None" if specCreator.photonEnergy is None else  ( "{:.2f}".format(specCreator.photonEnergy)  ).replace(".","pt")
-	angle = "None" if specCreator.emissionAngle is None else ( "{:.2f}".format(specCreator.emissionAngle) ).replace(".","pt") 
+	angle = "None" if specCreator.emissionAngle is None else ( "{:.2f}".format(specCreator.emissionAngle) ).replace(".","pt")
+	pol   = "None" if specCreator.polarised    is None else str(specCreator.polarised)
 	fwhmStr = ("{:.2f}".format(fwhm)).replace(".","pt")
-	return fmt.format(hvVal, angle, fwhmStr)
+	return fmt.format(hvVal, angle, pol, fwhmStr)
 
 if __name__ == '__main__':
 	main()
