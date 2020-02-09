@@ -3,6 +3,7 @@ import itertools as it
 import math
 from . import base_objs
 import gen_basis_helpers.shared.misc_utils as misc
+import numpy as np
 
 class BroadenFunctCompositeStandard(base_objs.BroadenFunctionStandard):
 
@@ -65,13 +66,14 @@ class GauBroadenFunct(base_objs.BroadenFunctionStandard):
 		self.coeff = coeff
 		self.centre = centre
 
-	def _calcFunctValSingleX(self, xVal):
-		outVal = self.coeff* math.exp( -1*self.exp*((xVal - self.centre)**2) )
-		return outVal
-
 	def __call__(self, xVals):
-		outVals = [self._calcFunctValSingleX(x) for x in xVals]
-		return outVals
+		outVals = np.array(xVals, dtype="float64")
+		outVals -= float(self.centre)
+		outVals = outVals ** 2
+		outVals *= -1*self.exp
+		outVals = np.exp(outVals)
+		outVals *= self.coeff
+		return outVals.tolist() #Weirdly seems to make main script faster than returning a np.array
 
 	@property
 	def areas(self):
