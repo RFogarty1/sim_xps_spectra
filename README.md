@@ -85,7 +85,12 @@ OK
   - If you only set fwhm and hv (photon energy) then the effect of the emission angle will be ignored (this would be simulate a spectrum calculated at the magic angle, which is about 55 degrees)
   - If you set fwhm, hv and angle then you will get a simulated spectrum which accounts for angular-dependence of the cross-sections
   
-  
-  
+# Important notes on cross-sections
+
+1) The default cross-sections are the Yeh-Lindau values, which were obtained from https://vuo.elettra.eu/services/elements/WebElements.html. In turn this site lists as sources "J.J. Yeh, Atomic Calculation of Photoionization Cross-Sections and Asymmetry Parameters, Gordon and Breach Science Publishers, Langhorne, PE (USA), 1993 and from J.J. Yeh and I.Lindau, Atomic Data and Nuclear Data Tables, 32, 1-155 (1985). "
+
+2) These cross-sections do not cover polarisation functions, for example d-orbitals on an oxygen atom. In these cases the Yeh-Lindau database object is set to return cross-sections for a lower angular momentum, e.g. O2p cross section for the O2d orbital. This isnt hard to change if calling the code through your own python scripts, but cant currently be changed from the command line interface.
+
+3) Spectra can currently only be calculated at the photon energy where cross-sections are tabulated for all elements involved. If you enter a photon energy where we dont have the tabulated value (e.g. 1482.34 eV) then the spectrum will be calculated using the nearest photon energy available (1486.6 eV in this example). The name of the output folder will encode the photon energy ACTUALLY used to calculate the spectrum.
 
 
