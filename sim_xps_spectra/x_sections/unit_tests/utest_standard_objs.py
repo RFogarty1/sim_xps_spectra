@@ -4,7 +4,6 @@ import types
 import unittest
 import sim_xps_spectra.x_sections.standard_objs as tCode
 
-#TODO: We're missing a 1/4pi constant i think. Need to correct in all the tests annoyingly
 class TestStandardCrossSectionCalculator(unittest.TestCase):
 
 	def setUp(self):
@@ -35,8 +34,15 @@ class TestStandardCrossSectionCalculator(unittest.TestCase):
 	def testAngularDependentCrossSection(self):
 		testHv = 22
 		testAngle = 50
-		expOutput = 19.0118066625099 * self.xSectionPreFactor
+		expOutput = 19.0118066625099
 		actOutput = self.tCalcA.calculateTotalCrossSection( "fakeLabel", testHv, angle=testAngle )
+		self.assertAlmostEqual( expOutput, actOutput )
+
+	def testAngularDependentLinearPolarisedCrossSection(self):
+		testHv = 22
+		testAngle = 50
+		expOutput = 36.9763866749802
+		actOutput = self.tCalcA.calculateTotalCrossSection( "fakeLabel", testHv, angle=testAngle, pol="linear" )
 		self.assertAlmostEqual( expOutput, actOutput )
 
 

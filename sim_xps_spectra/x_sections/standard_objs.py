@@ -15,7 +15,8 @@ class CrossSectionCalculatorStandard(baseObjs.CrossSectionCalculatorBase):
 
 
 	#Formula from http://dx.doi.org/10.1016/j.molliq.2014.01.007
-	def calculateTotalCrossSection(self,label, hv, angle=None, ao=True):
+	def calculateTotalCrossSection(self,label, hv, angle=None, ao=True, pol=None):
+
 		if ao is True:
 			aoData = self.database.getHvAgainstAOCrossSections(label)
 			aoHv, aoIdx = self._getHvUsedAndIndex(hv, aoData)
@@ -26,7 +27,7 @@ class CrossSectionCalculatorStandard(baseObjs.CrossSectionCalculatorBase):
 		if angle is not None:
 			asymData = self.database.getHvAgainstAOAsymFactors(label)
 			asymHv, asymIdx = self._getHvUsedAndIndex(hv, asymData)
-			angleFactor = self._calcAngularDependentTermFromAsymAndAngle( asymData[asymIdx][1], angle )
+			angleFactor = self._calcAngularDependentTermFromAsymAndAngle( asymData[asymIdx][1], angle, pol )
 			angularDependent = angleFactor*angularIndependent
 		else:
 			angularDependent = 0 
@@ -66,9 +67,26 @@ class CrossSectionCalculatorStandard(baseObjs.CrossSectionCalculatorBase):
 		hv = photonEnergies[idx]
 		return (hv,idx)
 
-	def _calcAngularDependentTermFromAsymAndAngle(self, asymParam, angle):
-		prefactor = asymParam / 2
-		degreesTerm = 1.5 * (math.sin( math.radians(angle) )**2)
-		total = prefactor * (degreesTerm - 1)
-		return total
+	def _calcAngularDependentTermFromAsymAndAngle(self, asymParam, angle, polarisation):
+		if polarisation is None:
+			return self._calcAngularDepNonPolarisedTerm(asymParam, angle)
+		elif polarisation.lower() == "linear":
+			return self._calcAngularDepLinearPolarisedTerm(asymParam, angle)
+		else:
+			raise ValueError("{} is an invalid value for polarisation".format(polarisation))
 
+
+	def _calcAngularDepNonPolarisedTerm(self, asymParam, angle):
+		""" Non-polarised light expression from https://doi.org/10.1006/adnd.2000.0849   [-\Beta/2 P_2(cos(\Theta))]"""
+		prefactor = -1 * (asymParam / 2)
+		p2Term = self._calcP2Term(asymParam,angle)
+		total = prefactor * p2Term #DegreesTerm - 1 is P2(cos Theta), where P2 means 2nd Legendre polynomial
+		return total
+	
+	def _calcAngularDepLinearPolarisedTerm(self, asymParam, angle):
+		""" Linearly polarised light expression from https://doi.org/10.1006/adnd.2000.0849 """
+		p2Term = self._calcP2Term(asymParam,angle)
+		return asymParam*p2Term
+
+	def _calcP2Term(self, asymParam, angle):
+		return 0.5 * ( ( 3* ( math.cos( math.radians(angle) )**2 )) - 1 ) #0.5(3x^2 - 1)

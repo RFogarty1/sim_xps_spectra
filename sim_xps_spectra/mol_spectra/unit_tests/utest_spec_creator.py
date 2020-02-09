@@ -32,7 +32,7 @@ class TestSpecCreator(unittest.TestCase):
 		self.testXVals = [1,2,3]
 
 		#Normalised broaden funct, we use a box function here
-		self.bFunctWidth = 1
+		self.bFunctWidth = 1.01
 
 		#other
 		self.photonEnergy = 6
