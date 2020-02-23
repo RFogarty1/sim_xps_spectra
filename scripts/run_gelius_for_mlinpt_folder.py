@@ -5,6 +5,10 @@ import itertools as it
 import os
 import pathlib
 
+#Import databases. TODO: Centralise the str to database mapping; so i can just import a database register
+import sim_xps_spectra.x_sections.yeh_lindau_db as yhlDb
+import sim_xps_spectra.x_sections.trz_db as trzDb
+
 import sim_xps_spectra.interfaces.create_from_mlinpt_folder as mlInptInter
 import sim_xps_spectra.mol_spectra.input_output as molIO
 import sim_xps_spectra.mol_spectra.standard_objs as molObjs
@@ -17,16 +21,18 @@ def main():
 	argsNamespace.folderPaths = [os.path.abspath(x) for x in argsNamespace.folderPaths]
 
 	#Create the spectra
+	database = _getDatabaseObjFromStr(argsNamespace.database)
 	allCalcSpectra, allCreators = list(), list()
 	for inpPath in argsNamespace.folderPaths:
-		currSpectrum, currCreator = getCalcSpectraForOneFolder( os.path.abspath(inpPath), argsNamespace.fwhm, argsNamespace.hv, argsNamespace.angle, argsNamespace.polarised )
+		currSpectrum, currCreator = getCalcSpectraForOneFolder( os.path.abspath(inpPath), argsNamespace.fwhm, argsNamespace.hv,
+		                                                        argsNamespace.angle, argsNamespace.polarised, database )
 		allCalcSpectra.append( currSpectrum )
 		allCreators.append( currCreator )
 
 	#save the outputs
 	for inpPath, creator, spectrum in it.zip_longest( argsNamespace.folderPaths, allCreators, allCalcSpectra ):
-		saveAllTxtFilesOneFolder(inpPath, creator, argsNamespace.fwhm, spectrum)
-		saveAllPlotsOneFolder(inpPath, creator, argsNamespace.fwhm, spectrum)
+		saveAllTxtFilesOneFolder(inpPath, creator, argsNamespace.fwhm, argsNamespace.database, spectrum)
+		saveAllPlotsOneFolder(inpPath, creator, argsNamespace.fwhm, argsNamespace.database, spectrum)
 
 def parseCmdLineArgs():
 	helpMsg = "Script to simulate combined XPS spectrum of *MLinpt.txt files in given folder"
@@ -36,20 +42,29 @@ def parseCmdLineArgs():
 	parser.add_argument( "-hv", help='The photon energy you want the spectrum simulated at. If not provided then a density-of-states will be simulated' )
 	parser.add_argument( "-angle", help='Emission angle (in degrees) you want the spectrum simulated at, if not provided then angular effects will be ignored')
 	parser.add_argument( "-polarised", help='Polarisation of light. Not entering means unpolarised, "linear" means polarised in direction of the beam')
+	parser.add_argument( "-database", help='Str(case insenstive) denoting database to use for obtaining cross-sections and asymmetry factors. Default is Yeh-Lindau cross sections. Options are "yhl" or "trz" currently') 
 	parsedArgs = parser.parse_args()
 
 	parsedArgs.fwhm = float(parsedArgs.fwhm)
 	parsedArgs.hv = None if parsedArgs.hv is None else float(parsedArgs.hv)
 	parsedArgs.angle = None if parsedArgs.angle is None else float(parsedArgs.angle)
 	parsedArgs.polarised = None if parsedArgs.polarised is None else str(parsedArgs.polarised)
+	parsedArgs.database = 'yhl' if parsedArgs.database is None else str(parsedArgs.database)
 
 	return parsedArgs
 
-def getCalcSpectraForOneFolder(inpFolder, fwhm, hv, angle, polarised):
-	return mlInptInter.getSpectrumFromMlinptFolder(inpFolder, fwhm, hv, angle, polarised)
 
-def saveAllPlotsOneFolder(inpFolder, creatorObj, fwhm, calcSpectrum):
-	folderPath = os.path.join( inpFolder, getSaveFolderNameFromCreator(creatorObj, fwhm) )
+def _getDatabaseObjFromStr(inpStr):
+	strToFunct = {"yhl":yhlDb.YehLindauXSectionDatabase,
+	              "trz":trzDb.TrzXSectionDatabase}
+	databaseCreator = strToFunct[inpStr.lower()]
+	return databaseCreator()
+
+def getCalcSpectraForOneFolder(inpFolder, fwhm, hv, angle, polarised, database):
+	return mlInptInter.getSpectrumFromMlinptFolder(inpFolder, fwhm, hv, angle, polarised, database=database)
+
+def saveAllPlotsOneFolder(inpFolder, creatorObj, fwhm, databaseAlias, calcSpectrum):
+	folderPath = os.path.join( inpFolder, getSaveFolderNameFromCreator(creatorObj, fwhm, databaseAlias) )
 	pathlib.Path(folderPath).mkdir(exist_ok=True)
 
 	#Save plot for total spectrum
@@ -64,8 +79,8 @@ def saveAllPlotsOneFolder(inpFolder, creatorObj, fwhm, calcSpectrum):
 	fragSpecPlot.savefig( os.path.join(folderPath,"frag_contribs.png"), format="png" )
 
 
-def saveAllTxtFilesOneFolder(inpFolder, creatorObj, fwhm, calcSpectrum):
-	folderPath = os.path.join( inpFolder, getSaveFolderNameFromCreator(creatorObj, fwhm) )
+def saveAllTxtFilesOneFolder(inpFolder, creatorObj, fwhm, databaseAlias, calcSpectrum):
+	folderPath = os.path.join( inpFolder, getSaveFolderNameFromCreator(creatorObj, fwhm, databaseAlias) )
 	pathlib.Path(folderPath).mkdir(exist_ok=True)
 
 	#Write the total spectrum file
@@ -99,13 +114,14 @@ def _getMergedFragCalcSpectraObj( calcSpecOutput ):
 
 	return genSpecObjs.GenSpectraOutputCompositeStandard( allCalcSpecObjs )
 
-def getSaveFolderNameFromCreator(specCreator, fwhm):
-	fmt = "hv_{}_angle_{}_pol_{}_fwhm_{}"
+def getSaveFolderNameFromCreator(specCreator, fwhm, databaseAlias):
+	fmt = "hv_{}_angle_{}_pol_{}_fwhm_{}_db_{}"
 	hvVal = "None" if specCreator.photonEnergy is None else  ( "{:.2f}".format(specCreator.photonEnergy)  ).replace(".","pt")
 	angle = "None" if specCreator.emissionAngle is None else ( "{:.2f}".format(specCreator.emissionAngle) ).replace(".","pt")
 	pol   = "None" if specCreator.polarised    is None else str(specCreator.polarised)
+	db = databaseAlias
 	fwhmStr = ("{:.2f}".format(fwhm)).replace(".","pt")
-	return fmt.format(hvVal, angle, pol, fwhmStr)
+	return fmt.format(hvVal, angle, pol, fwhmStr, db)
 
 if __name__ == '__main__':
 	main()

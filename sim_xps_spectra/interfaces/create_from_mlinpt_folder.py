@@ -7,7 +7,7 @@ import sim_xps_spectra.broad_functs.create_broaden_functs as bFunctCreator
 import sim_xps_spectra.mol_spectra.spectrum_creator as specCreatorModule
 import sim_xps_spectra.x_sections.yeh_lindau_db as yhDb
 
-def getSpectrumFromMlinptFolder(inpFolder, fwhm, hv, angle, polarised=None, multEnergiesByMinusOne=True):
+def getSpectrumFromMlinptFolder(inpFolder, fwhm, hv, angle, polarised=None, multEnergiesByMinusOne=True, database=None):
 	""" Description of function
 	
 	Args:
@@ -17,6 +17,7 @@ def getSpectrumFromMlinptFolder(inpFolder, fwhm, hv, angle, polarised=None, mult
 		angle: (float) Emission angle to calculate spectrum at (None means ignore angular effects)
 		polarised: (str, Optional) If None (default) then unpolarised light is assumed, If "linear" then simulate for linearly polarised light in direction of beam
 		multEnergiesByMinusOne: (Bool) Whether to multiply parsed energies by -1, to convert from eigenvalues(more -ve means more stable) to binding energies (more positive is more stable). Default is True
+		database: (Optional, CrossSectionDatabaseBase object), default = YehLindauXSectionDatabase
  
 	Returns
 		outSpectrum: (GenSpectraOutput object) - contains total spectrum (totalSpectraContributions) and all contributions (spectraContributions)
@@ -26,10 +27,13 @@ def getSpectrumFromMlinptFolder(inpFolder, fwhm, hv, angle, polarised=None, mult
 	mlInptPaths = [x for x in os.listdir(inpFolder) if x.endswith('MLinpt.txt')]
 	assert len(mlInptPaths) > 0, "Need at least 1 input file, but none found in folder {}".format(inpFolder)
 
-	return getSpectrumFromMlinptFileList( mlInptPaths, fwhm, hv, angle, polarised, multEnergiesByMinusOne=multEnergiesByMinusOne )
+	if database is None:
+		database = yhDb.YehLindauXSectionDatabase()
+
+	return getSpectrumFromMlinptFileList( mlInptPaths, fwhm, hv, angle, polarised, database, multEnergiesByMinusOne=multEnergiesByMinusOne )
 
 
-def getSpectrumFromMlinptFileList( mlInptPaths, fwhm, hv, angle, polarised, multEnergiesByMinusOne=True ):
+def getSpectrumFromMlinptFileList( mlInptPaths, fwhm, hv, angle, polarised, database, multEnergiesByMinusOne=True ):
 	#Get all the data
 	allFrags = list()
 	for x in mlInptPaths:
@@ -62,7 +66,7 @@ def getSpectrumFromMlinptFileList( mlInptPaths, fwhm, hv, angle, polarised, mult
 	initialPosition = 0.0 #Irrelevant but we need to supply SOME kind of value
 	bFunct = bFunctCreator.createNormalisedGauFunctFromCentreAndFWHM( initialPosition, fwhm )
 
-	xSectDatabase = yhDb.YehLindauXSectionDatabase()
+	xSectDatabase = database
 
 	#Create our input object
 	specCreator = specCreatorModule.SpectrumCreatorStandard( spectraFrags=allFrags, normBFunct=bFunct, xSectionDatabase=xSectDatabase,
