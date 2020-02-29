@@ -47,3 +47,50 @@ def _getTestFileAsListA():
 	return outList
 
 
+class TestMlInptWriter(unittest.TestCase):
+
+	@mock.patch("sim_xps_spectra.parsers.parse_mlinpt._readFileIntoList")
+	def setUp(self, mockedReadFileIntoList):
+		mockedReadFileIntoList.side_effect = lambda x: _getTestFileAsListB()
+		self.fragmentsA = tCode.getSpecFragsFromMLInptFile("fakePathA")
+		self.outPathA = "fake/out/path"
+
+	@mock.patch("sim_xps_spectra.parsers.parse_mlinpt._writeStrToFile")
+	def testExpMatchesActA(self, mockedWriter):
+		expOutStr = "".join([x for x in _getTestFileAsListB()])
+		tCode.writeMLInptFileFromPathAndSpecFrags(self.outPathA, self.fragmentsA)
+		mockedWriter.assert_called_once_with(self.outPathA, expOutStr)
+
+	@mock.patch("sim_xps_spectra.parsers.parse_mlinpt._writeStrToFile")
+	def testRaisesForInconsistentEnergies(self, mockedWriter):
+		self.fragmentsA[0].energies[0] += 0.2
+		self.assertTrue( abs(self.fragmentsA[0].energies[0] - self.fragmentsA[1].energies[0]) >0.001 ) #Check our fragment energies are inconsistent
+		with self.assertRaises(ValueError):
+			tCode.writeMLInptFileFromPathAndSpecFrags(self.outPathA, self.fragmentsA)
+
+	@mock.patch("sim_xps_spectra.parsers.parse_mlinpt._writeStrToFile")
+	def testRaisesForEnergiesOfDiffLengths(self, mockedWriter):
+		self.fragmentsA[1].energies.append(0.5)
+		self.assertNotEqual( len(self.fragmentsA[0].energies), len(self.fragmentsA[1].energies) )
+		with self.assertRaises(ValueError):
+			tCode.writeMLInptFileFromPathAndSpecFrags(self.outPathA, self.fragmentsA)
+
+
+#Really need M_FACTOR to equal 1 to test the writing aspect. We should only ever be writing to get the output intensities
+#(which should include this factor) so this shouldnt be an issue really
+def _getTestFileAsListB():
+	outList = [ "# M_FACTOR=1.0\n",
+	            "# Energy (eV),TDOS,C2S,C2P,C2D\n",
+	            "-4.498144,0.480540,0.000000,0.479424,0.001116\n",
+	            "-4.498144,0.480540,0.000000,0.479424,0.001116\n",
+	            "-4.467938,0.106631,-0.012118,0.118512,0.000237\n",
+	            "-1.090113,0.012545,0.000000,-0.003038,0.015583\n",
+	            "-1.090113,0.012545,0.000000,-0.003038,0.015583\n" ]
+	return outList
+
+
+
+
+
+
+

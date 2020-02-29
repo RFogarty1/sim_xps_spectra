@@ -61,3 +61,65 @@ def _readFileIntoList(inpPath):
 		outList = f.readlines()
 	return outList
 
+
+def writeMLInptFileFromPathAndSpecFrags(outPath, specFrags):
+	""" Writes a *MLinpt.txt file when given an output file path and an iter of SpectrumFragmentStandard objects
+	These files contains energies, intensities and labels for atomic orbitals contributing to a given fragment
+	
+	Args:
+		outPath: (str) Full path to the output file
+		specFrags: (iter of SpectrumFragmentStandard objects) These contain energies, intensities and labels for all contributions
+ 
+	Raises:
+		 ValueError: If the energies of specFrags differ between each other (The file format assumes the energy values are shared)
+	"""
+	_checkAllEnergiesConsistentBetweenFragments(specFrags) #Energies need to be the same on all fragments to write the MLinpt file
+	outFileAsList = ["# M_FACTOR=1.0\n"]
+	outFileAsList.append(_getHeaderStrFromSpecFrags(specFrags))
+	outFileAsList.extend(_getDataStrFromSpecFrags(specFrags))
+	outStr = "".join(outFileAsList)
+	_writeStrToFile(outPath, outStr)
+
+def _getHeaderStrFromSpecFrags(specFrags):
+	baseHeader = "# Energy (eV),TDOS,"
+	extraHeader = ",".join([x.label.xSectionLabel for x in specFrags])
+	return baseHeader + extraHeader + "\n"
+
+
+def _getDataStrFromSpecFrags(specFrags):
+	formatStrs = ["{:.6f}" for x in range( len(specFrags)+2 )]
+	allEnergies = specFrags[0].energies #Assume all energies are the same; this will be checked elsewhere
+	outStrList = list()
+	for idx, energy in enumerate(allEnergies):
+		intensities = [x.intensities[idx] for x in specFrags]
+		tdos = sum( intensities )
+		currLineNumVals = [energy] + [tdos] + intensities
+		currStr = ",".join( [fmtStr.format(x) for fmtStr,x in it.zip_longest(formatStrs,currLineNumVals)] ) + "\n"
+		outStrList.append(currStr)
+
+	return outStrList
+
+def _checkAllEnergiesConsistentBetweenFragments( specFrags, errorTol=1e-5 ):
+	allEnergies = [x.energies for x in specFrags]
+
+	#Check number of energies values is the same
+	allLens = [len(x) for x in allEnergies]
+	if not all([x==allLens[0] for x in allLens]):
+		raise ValueError("Cant write MLInpt.txt file since lengths of energies are different between fragments")
+
+	#Check the values of energies are the same
+	for idx in range(len(allEnergies[0])):
+		currDiffs = [abs(allEnergies[x][idx] - allEnergies[0][idx]) for x in range( len(allEnergies) )]
+		if not all([x<errorTol for x in currDiffs]):
+			raise ValueError("Cant write MLInpt.txt file since energies are different between fragments")
+
+
+#Here so i can mock it
+def _writeStrToFile(outPath, outStr):
+	with open(outPath,"wt") as f:
+		f.write(outStr)
+
+
+
+
+
