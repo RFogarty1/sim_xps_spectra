@@ -154,3 +154,13 @@ def _getAllXSectionsForSpecCreator( specCreator ):
 
 	return allXSections
 
+
+def applyCrossSectionsToFragmentObjectAndReturnHvUsed(fragObj, specCreator):
+	xSectCalculator = xSectObjs.CrossSectionCalculatorStandard( specCreator.xSectionDatabase )
+	if specCreator.photonEnergy is None:
+		return -1
+	else:
+		hvUsed = xSectCalculator.getHvUsedToCalculateCrossSection(fragObj.label.xSectionLabel, specCreator.photonEnergy, angle=specCreator.emissionAngle, ao=True )
+		xSection = xSectCalculator.calculateTotalCrossSection(fragObj.label.xSectionLabel, specCreator.photonEnergy, angle=specCreator.emissionAngle, ao=True, pol=specCreator.polarised )
+		fragObj.intensities = [x*xSection for x in fragObj.intensities]
+		return hvUsed

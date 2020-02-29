@@ -1,6 +1,7 @@
 
 
 import argparse
+import copy
 import itertools as it
 import os
 import pathlib
@@ -15,6 +16,9 @@ import sim_xps_spectra.mol_spectra.standard_objs as molObjs
 import sim_xps_spectra.mol_spectra.mol_plotter as molPlot
 import sim_xps_spectra.gen_spectra.standard_objs as genSpecObjs
 
+import sim_xps_spectra.shared.searchable_collection as searchHelp
+import sim_xps_spectra.parsers.parse_mlinpt as parseMlInpt
+import sim_xps_spectra.mol_spectra.spectrum_creator as specCreator
 
 def main():
 	argsNamespace = parseCmdLineArgs()
@@ -33,6 +37,7 @@ def main():
 	for inpPath, creator, spectrum in it.zip_longest( argsNamespace.folderPaths, allCreators, allCalcSpectra ):
 		saveAllTxtFilesOneFolder(inpPath, creator, argsNamespace.fwhm, argsNamespace.database, spectrum)
 		saveAllPlotsOneFolder(inpPath, creator, argsNamespace.fwhm, argsNamespace.database, spectrum)
+		saveAllMLInptOneFolder(inpPath, creator, argsNamespace.fwhm, argsNamespace.database)
 
 def parseCmdLineArgs():
 	helpMsg = "Script to simulate combined XPS spectrum of *MLinpt.txt files in given folder"
@@ -98,6 +103,20 @@ def saveAllTxtFilesOneFolder(inpFolder, creatorObj, fwhm, databaseAlias, calcSpe
 	fragContribStr = molIO.getAllContribsOutputStrFromSpectraOutput( fragContribSpectrum )
 	with open( os.path.join(folderPath, "frag_contribs.txt"), "wt" ) as f:
 		f.write(fragContribStr)
+
+
+def saveAllMLInptOneFolder(inpFolder, creatorObj, fwhm, databaseAlias):
+	searchCol = searchHelp.SearchableCollection(creatorObj.spectraFrags)
+	allFragNames = searchCol.getAllValsForComponent("fragKey")
+	outSaveFolder = getSaveFolderNameFromCreator(creatorObj, fwhm, databaseAlias)
+
+	for fName in allFragNames:
+		outFilePath = os.path.join(outSaveFolder, fName + "_output_MLinpt.txt")
+		currFragments = copy.deepcopy(searchCol.getObjectsWithComponents([fName]))
+		for frag in currFragments:
+			frag.energies = [-1*x for x in frag.energies]
+			specCreator.applyCrossSectionsToFragmentObjectAndReturnHvUsed(frag, creatorObj)
+		parseMlInpt.writeMLInptFileFromPathAndSpecFrags(outFilePath,currFragments)
 
 def _getMergedFragCalcSpectraObj( calcSpecOutput ):
 	""" For a calcSpectrum with fragA and fragB, all atomic contribs will be merged within fragA and fragB (NOT in place), 

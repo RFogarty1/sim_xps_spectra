@@ -88,6 +88,16 @@ class TestSpecCreator(unittest.TestCase):
 			tCode.createSpectrumFromStandardCreator( self.testObjA )
 
 
+	def testApplyXSectionsToFragObj(self):
+		testFrag = self.specFragsA
+		expIntensities = [self.xSectionsA[0][1]*x for x in self.intensitiesA]
+		expHv = 5
+		actHv = tCode.applyCrossSectionsToFragmentObjectAndReturnHvUsed(testFrag, self.testObjA)
+		actIntensities = testFrag.intensities
+		self.assertEqual(expHv,actHv)
+		self.assertEqual(expIntensities, actIntensities)
+
+
 class TestSpecFrag(unittest.TestCase):
 
 	def setUp(self):
