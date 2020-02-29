@@ -87,7 +87,7 @@ def _getHeaderStrFromSpecFrags(specFrags):
 
 
 def _getDataStrFromSpecFrags(specFrags):
-	formatStrs = ["{:.6f}" for x in range( len(specFrags)+2 )]
+	formatStrs = ["{:.6g}" for x in range( len(specFrags)+2 )]
 	allEnergies = specFrags[0].energies #Assume all energies are the same; this will be checked elsewhere
 	outStrList = list()
 	for idx, energy in enumerate(allEnergies):

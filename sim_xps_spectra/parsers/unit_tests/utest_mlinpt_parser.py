@@ -78,14 +78,15 @@ class TestMlInptWriter(unittest.TestCase):
 
 #Really need M_FACTOR to equal 1 to test the writing aspect. We should only ever be writing to get the output intensities
 #(which should include this factor) so this shouldnt be an issue really
+#ALSO: This has the numbers formatted at .6g, rather than .6f above
 def _getTestFileAsListB():
 	outList = [ "# M_FACTOR=1.0\n",
 	            "# Energy (eV),TDOS,C2S,C2P,C2D\n",
-	            "-4.498144,0.480540,0.000000,0.479424,0.001116\n",
-	            "-4.498144,0.480540,0.000000,0.479424,0.001116\n",
-	            "-4.467938,0.106631,-0.012118,0.118512,0.000237\n",
-	            "-1.090113,0.012545,0.000000,-0.003038,0.015583\n",
-	            "-1.090113,0.012545,0.000000,-0.003038,0.015583\n" ]
+	            "-4.49814,0.48054,0,0.479424,0.001116\n",
+	            "-4.49814,0.48054,0,0.479424,0.001116\n",
+	            "-4.46794,0.106631,-0.012118,0.118512,0.000237\n",
+	            "-1.09011,0.012545,0,-0.003038,0.015583\n",
+	            "-1.09011,0.012545,0,-0.003038,0.015583\n" ]
 	return outList
 
 
