@@ -55,9 +55,9 @@ def createSubstituteLabelDict():
 	return outDict	
 
 
-#TODO: Figure out why we have 3 values for x-sections and asym factors. For C2p the asym factor values differ a bit
 def parseDataFile(inpPath):
 	fileAsList = _readInpFileIntoList(inpPath)
+	fileAsList = [x for x in fileAsList if not x.startswith("#")]
 	xSections, asymVals, hvVals = list(), list(), list()
 	for line in fileAsList:
 		currData = line.strip().split("\t")

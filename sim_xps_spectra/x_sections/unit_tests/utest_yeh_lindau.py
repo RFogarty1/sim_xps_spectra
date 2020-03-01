@@ -16,6 +16,7 @@ class TestYehLindauDatabase(unittest.TestCase):
 
 	def createFileAsList(self):
 		self.fileAsListA = list()
+		self.fileAsListA.append("#Here is a comment line")
 		for hv, xSect, asym in it.zip_longest(self.hvVals, self.xSections, self.asymFactors):
 			currStr = "\t".join( [str(x) for x in [hv, xSect, xSect, xSect, asym, asym, asym]] )
 			currStr += "\n"
